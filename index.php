@@ -1,408 +1,582 @@
 
 <?php
-$name = "Pragati Javheri";
-$version = "2.0";
-$currentTime = date("h:i A");
-$currentDate = date("l, d F Y");
+// Application Configuration
+$appName = "Pragati's PHP Application";
+$appVersion = "2.0.0";
+$owner = "Pragati Javheri";
 
-$greeting = "Welcome back";
+// Detect application URL (works with OpenShift Routes)
+$protocol = (
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+    ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+) ? 'https' : 'http';
+
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$appUrl = $protocol . '://' . $host;
+
+// Server Information
+$phpVersion = PHP_VERSION;
+$serverTime = date('d M Y, h:i:s A');
+$currentYear = date('Y');
+
+// OpenShift environment detection
+$isOpenShift = !empty(getenv('KUBERNETES_SERVICE_HOST')) ||
+               !empty(getenv('OPENSHIFT_BUILD_NAME')) ||
+               !empty(getenv('OPENSHIFT_BUILD_NAMESPACE'));
+
+$platform = $isOpenShift ? "Red Hat OpenShift" : "Local / Other Environment";
+$deploymentStatus = "Application Responding";
+$environment = getenv('OPENSHIFT_BUILD_NAMESPACE') ?: 'OpenShift Container Platform';
+$buildName = getenv('OPENSHIFT_BUILD_NAME') ?: 'PHP Application Deployment';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My PHP App | Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<title><?php echo htmlspecialchars($appName); ?> | OpenShift</title>
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f4f7fc;
-            color: #1e293b;
-            min-height: 100vh;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        /* Navigation */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 8%;
-            background: #ffffff;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.04);
-        }
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #080d1b;
+    color: #e2e8f0;
+    min-height: 100vh;
+}
 
-        .logo {
-            font-size: 23px;
-            font-weight: 800;
-            color: #635bdb;
-        }
+/* Background */
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(109,40,217,.22), transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(14,165,233,.15), transparent 35%),
+        #080d1b;
+}
 
-        .logo span {
-            color: #1e293b;
-        }
+/* Navbar */
+.navbar {
+    padding: 20px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: rgba(15,23,42,.75);
+}
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 14px;
-            color: #64748b;
-        }
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
 
-        .profile {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #635bdb, #a78bfa);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-        }
+.brand-icon {
+    width: 43px;
+    height: 43px;
+    background: linear-gradient(135deg,#7c3aed,#2563eb);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+}
 
-        /* Main Container */
-        .container {
-            max-width: 1150px;
-            margin: 45px auto;
-            padding: 0 25px;
-        }
+.brand h2 {
+    font-size: 19px;
+    letter-spacing: .3px;
+}
 
-        .welcome {
-            margin-bottom: 30px;
-        }
+.brand small {
+    display: block;
+    color: #94a3b8;
+    font-size: 11px;
+    margin-top: 3px;
+}
 
-        .welcome h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            color: #172554;
-        }
+.nav-status {
+    color: #4ade80;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.25);
+    border-radius: 30px;
+    padding: 9px 16px;
+    font-size: 12px;
+    font-weight: 600;
+}
 
-        .welcome p {
-            color: #64748b;
-            font-size: 15px;
-        }
+/* Main */
+.container {
+    max-width: 1150px;
+    margin: auto;
+    padding: 55px 25px;
+}
 
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(120deg, #5145cd, #8b5cf6);
-            padding: 45px;
-            border-radius: 20px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 12px 30px rgba(99, 91, 219, 0.2);
-        }
+/* Hero */
+.hero {
+    padding: 50px;
+    border-radius: 22px;
+    background: linear-gradient(115deg,#312e81,#6d28d9 55%,#4338ca);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(76,29,149,.2);
+}
 
-        .hero::after {
-            content: "";
-            position: absolute;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-            right: -50px;
-            top: -90px;
-        }
+.hero::before {
+    content: "☁";
+    position: absolute;
+    right: 55px;
+    top: 0;
+    font-size: 190px;
+    opacity: .12;
+}
 
-        .hero h2 {
-            font-size: 30px;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
+.tag {
+    display: inline-block;
+    background: rgba(255,255,255,.15);
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    margin-bottom: 22px;
+    letter-spacing: 1px;
+}
 
-        .hero p {
-            font-size: 16px;
-            line-height: 1.7;
-            color: #ede9fe;
-            max-width: 600px;
-            position: relative;
-            z-index: 1;
-        }
+.hero h1 {
+    font-size: 39px;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    max-width: 700px;
+}
 
-        .hero .version {
-            display: inline-block;
-            margin-top: 22px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            position: relative;
-            z-index: 1;
-        }
+.hero h1 span {
+    color: #c4b5fd;
+}
 
-        /* Cards */
-        .section-title {
-            margin: 40px 0 20px;
-            font-size: 21px;
-            color: #172554;
-        }
+.hero p {
+    color: #e0e7ff;
+    line-height: 1.8;
+    max-width: 650px;
+    font-size: 15px;
+}
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
-        }
+.hero-info {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}
 
-        .card {
-            background: white;
-            padding: 28px;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.035);
-            transition: 0.3s ease;
-            border: 1px solid #edf0f7;
-        }
+.hero-info span {
+    padding: 10px 15px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    font-size: 12px;
+}
 
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
-        }
+/* URL */
+.url-card {
+    margin-top: 25px;
+    background: #111b30;
+    border: 1px solid #293750;
+    border-radius: 14px;
+    padding: 22px 25px;
+}
 
-        .icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 23px;
-            margin-bottom: 20px;
-        }
+.url-label {
+    font-size: 11px;
+    color: #94a3b8;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+}
 
-        .purple { background: #ede9fe; }
-        .blue { background: #dbeafe; }
-        .green { background: #dcfce7; }
+.url-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 
-        .card h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
+.url-text {
+    font-size: 16px;
+    color: #67e8f9;
+    word-break: break-all;
+    font-weight: 600;
+}
 
-        .card p {
-            color: #64748b;
-            line-height: 1.6;
-            font-size: 14px;
-        }
+.url-badge {
+    background: rgba(34,197,94,.12);
+    color: #4ade80;
+    border-radius: 7px;
+    padding: 7px 12px;
+    font-size: 11px;
+}
 
-        /* User Information */
-        .info-section {
-            background: white;
-            margin-top: 30px;
-            padding: 28px;
-            border-radius: 16px;
-            border: 1px solid #edf0f7;
-        }
+/* Section */
+.section-heading {
+    margin: 45px 0 20px;
+}
 
-        .info-section h3 {
-            margin-bottom: 20px;
-        }
+.section-heading h2 {
+    font-size: 21px;
+    margin-bottom: 7px;
+}
 
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid #f1f5f9;
-            gap: 15px;
-        }
+.section-heading p {
+    color: #94a3b8;
+    font-size: 13px;
+}
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
+/* Cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+}
 
-        .info-label {
-            color: #64748b;
-        }
+.card {
+    background: #111b30;
+    border: 1px solid #243149;
+    border-radius: 15px;
+    padding: 25px;
+    transition: .3s;
+}
 
-        .info-value {
-            font-weight: 600;
-            text-align: right;
-        }
+.card:hover {
+    transform: translateY(-5px);
+    border-color: #7c3aed;
+}
 
-        .status {
-            color: #16a34a;
-            background: #dcfce7;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
+.card-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 23px;
+    margin-bottom: 20px;
+}
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 30px 15px;
-            color: #94a3b8;
-            font-size: 13px;
-            margin-top: 35px;
-        }
+.purple { background: rgba(139,92,246,.17); }
+.blue { background: rgba(14,165,233,.17); }
+.green { background: rgba(34,197,94,.17); }
+.orange { background: rgba(249,115,22,.17); }
+.pink { background: rgba(236,72,153,.17); }
+.cyan { background: rgba(6,182,212,.17); }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 18px 5%;
-            }
+.card h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
 
-            .container {
-                margin-top: 30px;
-            }
+.card .value {
+    font-size: 21px;
+    font-weight: 700;
+    color: #c4b5fd;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
 
-            .cards {
-                grid-template-columns: 1fr;
-            }
+.card p {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.6;
+}
 
-            .hero {
-                padding: 30px 25px;
-            }
+/* Deployment */
+.deployment {
+    margin-top: 35px;
+    padding: 30px;
+    background: linear-gradient(120deg,#111b30,#172554);
+    border: 1px solid #293750;
+    border-radius: 16px;
+}
 
-            .hero h2 {
-                font-size: 24px;
-            }
+.deployment h2 {
+    font-size: 20px;
+    margin-bottom: 22px;
+}
 
-            .welcome h1 {
-                font-size: 26px;
-            }
+.steps {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 15px;
+}
 
-            .info-row {
-                font-size: 13px;
-            }
-        }
-    </style>
+.step {
+    border-left: 2px solid #8b5cf6;
+    padding: 5px 0 5px 15px;
+}
+
+.step strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.step small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+/* Footer */
+footer {
+    margin-top: 55px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 28px 10px;
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 2;
+}
+
+footer strong {
+    color: #a78bfa;
+}
+
+/* Responsive */
+@media(max-width: 768px) {
+    .hero {
+        padding: 30px 23px;
+    }
+
+    .hero h1 {
+        font-size: 29px;
+    }
+
+    .hero::before {
+        right: 0;
+        font-size: 110px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .steps {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .container {
+        padding-top: 30px;
+    }
+}
+
+@media(max-width: 480px) {
+    .grid, .steps {
+        grid-template-columns: 1fr;
+    }
+
+    .navbar {
+        padding: 16px 5%;
+    }
+
+    .brand h2 {
+        font-size: 15px;
+    }
+
+    .nav-status {
+        font-size: 10px;
+    }
+
+    .hero h1 {
+        font-size: 25px;
+    }
+
+    .url-text {
+        font-size: 13px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="logo">PHP<span>App.</span></div>
+<div class="background"></div>
 
-        <div class="nav-right">
-            <span>My Account</span>
-            <div class="profile">
-                <?php echo strtoupper(substr($name, 0, 1)); ?>
-            </div>
+<!-- NAVIGATION -->
+<nav class="navbar">
+
+    <div class="brand">
+        <div class="brand-icon">☁</div>
+        <div>
+            <h2>PHP CLOUD APP</h2>
+            <small>OPENSHIFT DEPLOYMENT</small>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content -->
-    <main class="container">
+    <div class="nav-status">
+        ● APPLICATION LIVE
+    </div>
 
-        <div class="welcome">
-            <h1><?php echo $greeting; ?>, <?php echo htmlspecialchars($name); ?>! 👋</h1>
-            <p>Here's what's happening with your application today.</p>
-        </div>
+</nav>
 
-        <!-- Hero -->
-        <section class="hero">
-            <h2>Welcome to My PHP App 🚀</h2>
+<main class="container">
 
-            <p>
-                Your application is successfully running!
-                Explore your dashboard and enjoy a clean,
-                modern and responsive experience built using PHP, HTML and CSS.
-            </p>
+    <!-- HERO -->
+    <section class="hero">
 
-            <span class="version">
-                ✨ Version <?php echo $version; ?>
-            </span>
-        </section>
+        <div class="tag">✦ SUCCESSFULLY DEPLOYED</div>
 
-        <!-- Features -->
-        <h2 class="section-title">Application Overview</h2>
+        <h1>
+            Hello, <?php echo htmlspecialchars($owner); ?>!
+            <br>
+            Welcome to the <span>Cloud.</span>
+        </h1>
 
-        <section class="cards">
-
-            <div class="card">
-                <div class="icon purple">⚡</div>
-                <h3>Fast & Lightweight</h3>
-                <p>
-                    A simple PHP application designed with
-                    clean code and lightweight styling.
-                </p>
-            </div>
-
-            <div class="card">
-                <div class="icon blue">🎨</div>
-                <h3>Modern Design</h3>
-                <p>
-                    Beautiful gradients, responsive layouts,
-                    smooth hover effects and elegant cards.
-                </p>
-            </div>
-
-            <div class="card">
-                <div class="icon green">🔒</div>
-                <h3>PHP Powered</h3>
-                <p>
-                    Dynamic content generated using PHP
-                    variables and server-side rendering.
-                </p>
-            </div>
-
-        </section>
-
-        <!-- User Details -->
-        <section class="info-section">
-            <h3>Application Information</h3>
-
-            <div class="info-row">
-                <span class="info-label">Application Name</span>
-                <span class="info-value">My PHP App</span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">User Name</span>
-                <span class="info-value">
-                    <?php echo htmlspecialchars($name); ?>
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Application Version</span>
-                <span class="info-value">
-                    <?php echo htmlspecialchars($version); ?>
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Server Time</span>
-                <span class="info-value">
-                    <?php echo $currentTime; ?>
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Current Date</span>
-                <span class="info-value">
-                    <?php echo $currentDate; ?>
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Application Status</span>
-                <span class="info-value">
-                    <span class="status">● Running Successfully</span>
-                </span>
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer>
         <p>
-            © <?php echo date("Y"); ?> My PHP App.
-            Designed with ❤️ using PHP.
+            A PHP application running on Red Hat OpenShift.
+            Built with simplicity, deployed to the cloud,
+            and ready to showcase the power of modern container-based hosting.
         </p>
+
+        <div class="hero-info">
+            <span>🐘 PHP <?php echo htmlspecialchars($phpVersion); ?></span>
+            <span>☁ OpenShift Platform</span>
+            <span>🚀 Version <?php echo htmlspecialchars($appVersion); ?></span>
+        </div>
+
+    </section>
+
+    <!-- APPLICATION URL -->
+    <section class="url-card">
+
+        <div class="url-label">🌐 APPLICATION ACCESS URL</div>
+
+        <div class="url-content">
+
+            <div class="url-text">
+                <?php echo htmlspecialchars($appUrl); ?>
+            </div>
+
+            <div class="url-badge">
+                ● ACCESSIBLE
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- DASHBOARD -->
+    <div class="section-heading">
+        <h2>⚡ Deployment Dashboard</h2>
+        <p>Application runtime and deployment information</p>
+    </div>
+
+    <section class="grid">
+
+        <div class="card">
+            <div class="card-icon green">🟢</div>
+            <h3>Application Status</h3>
+            <div class="value">Running</div>
+            <p>PHP application is responding to this request.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon purple">🐘</div>
+            <h3>PHP Runtime</h3>
+            <div class="value">
+                <?php echo htmlspecialchars($phpVersion); ?>
+            </div>
+            <p>Server-side scripting environment.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon blue">☁️</div>
+            <h3>Hosting Platform</h3>
+            <div class="value">OpenShift</div>
+            <p>Container-based application hosting platform.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon orange">📦</div>
+            <h3>Application Version</h3>
+            <div class="value">
+                <?php echo htmlspecialchars($appVersion); ?>
+            </div>
+            <p>Current application release.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon pink">👩‍💻</div>
+            <h3>Application Owner</h3>
+            <div class="value">
+                <?php echo htmlspecialchars($owner); ?>
+            </div>
+            <p>Application developer and owner.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon cyan">🕒</div>
+            <h3>Server Time</h3>
+            <div class="value" style="font-size:17px">
+                <?php echo htmlspecialchars($serverTime); ?>
+            </div>
+            <p>Current server date and time.</p>
+        </div>
+
+    </section>
+
+    <!-- DEPLOYMENT JOURNEY -->
+    <section class="deployment">
+
+        <h2>🚀 From Code to Cloud</h2>
+
+        <div class="steps">
+
+            <div class="step">
+                <strong>01. Development</strong>
+                <small>PHP application developed</small>
+            </div>
+
+            <div class="step">
+                <strong>02. Containerization</strong>
+                <small>Application packaged for hosting</small>
+            </div>
+
+            <div class="step">
+                <strong>03. Deployment</strong>
+                <small>Hosted on OpenShift</small>
+            </div>
+
+            <div class="step">
+                <strong>04. Live Application</strong>
+                <small>Application responding successfully</small>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            ENGINEERED WITH ❤️ BY
+            <strong><?php echo htmlspecialchars($owner); ?></strong>
+        </p>
+
+        <p>
+            Powered by PHP &nbsp;|&nbsp;
+            Hosted on Red Hat OpenShift
+        </p>
+
+        <p>
+            © <?php echo $currentYear; ?>
+            <?php echo htmlspecialchars($appName); ?>.
+            All rights reserved.
+        </p>
+
     </footer>
+
+</main>
 
 </body>
 </html>
